@@ -1,0 +1,478 @@
+{
+  "info": {
+    "_postman_id": "b1f2a3c4-5d6e-4f70-8a9b-0c1d2e3f4a5b",
+    "name": "PGRTC API",
+    "description": "Plataforma de Gestion de Recursos en Tiempo Real para Catastrofes - API collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"New Rescuer\",\n  \"email\": \"new.rescuer@pgrtc.org\",\n  \"password\": \"Secret123!\",\n  \"role\": \"rescuer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "var json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('token', json.token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@pgrtc.org\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('token', json.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Updated Rescuer Name\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Centers",
+      "item": [
+        {
+          "name": "List centers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/centers?search=&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "centers"],
+              "query": [
+                { "key": "search", "value": "", "description": "Filter by center_name (ILIKE)" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get center by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/centers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "centers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create center (admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"center_name\": \"Hospital Nuevo\",\n  \"type\": \"hospital\",\n  \"latitude\": 40.416775,\n  \"longitude\": -3.70379,\n  \"status\": \"green\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/centers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "centers"]
+            }
+          }
+        },
+        {
+          "name": "Update center (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"center_name\": \"Hospital Nuevo Renombrado\",\n  \"type\": \"hospital\",\n  \"latitude\": 40.416775,\n  \"longitude\": -3.70379,\n  \"status\": \"yellow\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/centers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "centers", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete center (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/centers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "centers", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Supplies",
+      "item": [
+        {
+          "name": "List supplies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/supplies?search=&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "supplies"],
+              "query": [
+                { "key": "search", "value": "" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get supply by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/supplies/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "supplies", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create supply (admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supply_name\": \"gloves\",\n  \"unit\": \"boxes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/supplies",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "supplies"]
+            }
+          }
+        },
+        {
+          "name": "Update supply (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"supply_name\": \"gloves_nitrile\",\n  \"unit\": \"boxes\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/supplies/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "supplies", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete supply (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/supplies/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "supplies", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "List inventory",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory?center_id=&supply_id=&status=&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory"],
+              "query": [
+                { "key": "center_id", "value": "" },
+                { "key": "supply_id", "value": "" },
+                { "key": "status", "value": "", "description": "red | yellow | green" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get inventory by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create inventory (admin/rescuer)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"center_id\": 1,\n  \"supply_id\": 1,\n  \"quantity\": 5,\n  \"min_threshold\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory"]
+            }
+          }
+        },
+        {
+          "name": "Update inventory (admin/rescuer)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 40,\n  \"min_threshold\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete inventory (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/inventory/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "inventory", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Redistribution Requests",
+      "item": [
+        {
+          "name": "List redistribution requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/redistribution-requests?status=pending&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "redistribution-requests"],
+              "query": [
+                { "key": "status", "value": "pending", "description": "pending | approved | rejected | completed" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get redistribution request by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/redistribution-requests/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "redistribution-requests", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create redistribution request",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source_center_id\": 3,\n  \"target_center_id\": 2,\n  \"supply_id\": 2,\n  \"quantity\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/redistribution-requests",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "redistribution-requests"]
+            }
+          }
+        },
+        {
+          "name": "Approve redistribution request (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/redistribution-requests/1/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "redistribution-requests", "1", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Reject redistribution request (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/redistribution-requests/1/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "redistribution-requests", "1", "reject"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get dashboard summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
